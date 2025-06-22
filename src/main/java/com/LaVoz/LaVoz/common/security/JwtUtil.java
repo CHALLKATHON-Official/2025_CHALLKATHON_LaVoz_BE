@@ -1,78 +1,84 @@
 package com.LaVoz.LaVoz.common.security;
 
-import com.hufs_cheongwon.domain.Users;
-import lombok.Builder;
-import lombok.Getter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Date;
 
-@Getter
-@Builder
-public class CustomUserDetails implements UserDetails {
+@Component
+@Slf4j
+public class JwtUtil {
 
-    private final Member member;
-    private final String email;
-    private final String password;
-    private final Collection<? extends GrantedAuthority> authorities;
+    private final SecretKey secretKey;
+    private final long accessTokenValidityInMilliseconds;
+    private final long refreshTokenValidityInMilliseconds;
 
-    public static CustomUserDetails from(Users user) {
-        return CustomUserDetails.builder()
-                .user(user)
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_USER")))
-                .build();
+    public JwtUtil(
+            // secret key
+            @Value("${jwt.secret}") final String secretKey,
+            // access token 유효 시간
+            @Value("${jwt.accessExpiration}") final long accessTokenValidityInMilliseconds,
+            // refresh token 유효 시간
+            @Value("${jwt.refreshExpiration}") final long refreshTokenValidityInMilliseconds
+    ) {
+        this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        this.accessTokenValidityInMilliseconds = accessTokenValidityInMilliseconds;
+        this.refreshTokenValidityInMilliseconds = refreshTokenValidityInMilliseconds;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-
-        collection.add(new GrantedAuthority() {
-
-            @Override
-            public String getAuthority() {
-
-                return "ROLE_USER";
-            }
-        });
-
-        return collection;
+    //access token 생성
+    public String createAccessToken(String subject, String role) {
+        return createJwt(subject, role, accessTokenValidityInMilliseconds);
     }
 
-    @Override
-    public String getPassword() {
-        return user.getPassword();
+    // refresh token 생성
+    public String createRefreshToken(String subject, String role) {
+        return createJwt(subject, role, refreshTokenValidityInMilliseconds);
     }
 
-    @Override
-    public String getUsername() {
-        return user.getEmail();
+    public String createJwt(String username, String role, Long expiredMs) {
+
+        return Jwts.builder()
+                .claim("username", username)
+                .claim("role", role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
+                .compact();
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+    public String resolveAccessToken(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            return null;
+        }
+        return authorization.split(" ")[1];
+    }
+    public String getUsername(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
     }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+    public String getRole(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+    public Boolean isExpired(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+    public Instant getExpiresAtAsInstant(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().toInstant();
     }
 }
+

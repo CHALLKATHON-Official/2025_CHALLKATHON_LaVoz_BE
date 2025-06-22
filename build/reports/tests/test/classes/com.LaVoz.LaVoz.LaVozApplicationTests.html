@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.344s</div>
+<div class="counter">0.228s</div>
 <p>duration</p>
 </div>
 </td>
@@ -82,7 +82,7 @@
 </thead>
 <tr>
 <td class="success">contextLoads()</td>
-<td class="success">0.344s</td>
+<td class="success">0.228s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -90,8 +90,8 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>15:04:04.007 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.LaVoz.LaVoz.LaVozApplicationTests]: LaVozApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-15:04:04.035 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.LaVoz.LaVoz.LaVozApplication for test class com.LaVoz.LaVoz.LaVozApplicationTests
+<pre>23:49:07.966 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.LaVoz.LaVoz.LaVozApplicationTests]: LaVozApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+23:49:07.998 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.LaVoz.LaVoz.LaVozApplication for test class com.LaVoz.LaVoz.LaVozApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -102,9 +102,32 @@
 
  :: Spring Boot ::                (v3.5.3)
 
-2025-06-22T15:04:04.149+09:00  INFO 63726 --- [LaVoz] [    Test worker] com.LaVoz.LaVoz.LaVozApplicationTests    : Starting LaVozApplicationTests using Java 21.0.6 with PID 63726 (started by yunseo in /Users/yunseo/projects/2025_CHALLKATHON_LaVoz_BE)
-2025-06-22T15:04:04.149+09:00  INFO 63726 --- [LaVoz] [    Test worker] com.LaVoz.LaVoz.LaVozApplicationTests    : No active profile set, falling back to 1 default profile: &quot;default&quot;
-2025-06-22T15:04:04.435+09:00  INFO 63726 --- [LaVoz] [    Test worker] com.LaVoz.LaVoz.LaVozApplicationTests    : Started LaVozApplicationTests in 0.363 seconds (process running for 0.681)
+2025-06-22T23:49:08.136+09:00  INFO 69976 --- [    Test worker] com.LaVoz.LaVoz.LaVozApplicationTests    : Starting LaVozApplicationTests using Java 21.0.6 with PID 69976 (started by yunseo in /Users/yunseo/projects/2025_CHALLKATHON_LaVoz_BE)
+2025-06-22T23:49:08.137+09:00  INFO 69976 --- [    Test worker] com.LaVoz.LaVoz.LaVozApplicationTests    : No active profile set, falling back to 1 default profile: &quot;default&quot;
+2025-06-22T23:49:08.385+09:00  INFO 69976 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-22T23:49:08.407+09:00  INFO 69976 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16 ms. Found 2 JPA repository interfaces.
+2025-06-22T23:49:08.548+09:00  INFO 69976 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-22T23:49:08.561+09:00  INFO 69976 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.18.Final
+2025-06-22T23:49:08.569+09:00  INFO 69976 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-06-22T23:49:08.647+09:00  INFO 69976 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-22T23:49:08.656+09:00  INFO 69976 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-06-22T23:49:09.159+09:00  INFO 69976 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@c89e263
+2025-06-22T23:49:09.160+09:00  INFO 69976 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-06-22T23:49:09.224+09:00  INFO 69976 --- [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.40
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-22T23:49:09.478+09:00  INFO 69976 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-22T23:49:09.551+09:00 DEBUG 69976 --- [    Test worker] org.hibernate.SQL                        : alter table member modify column role enum ('ROLE_CHILD','ROLE_COUNSELOR','ROLE_DOCTOR','ROLE_GUARDIAN')
+2025-06-22T23:49:09.671+09:00  INFO 69976 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22T23:49:09.831+09:00  WARN 69976 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-22T23:49:09.891+09:00  INFO 69976 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-06-22T23:49:09.909+09:00  WARN 69976 --- [    Test worker] thorizationManagerRequestMatcherRegistry : One of the patterns in [member/test] is missing a leading slash. This is discouraged; please include the leading slash in all your request matcher patterns. In future versions of Spring Security, leaving out the leading slash will result in an exception.
+2025-06-22T23:49:10.034+09:00  INFO 69976 --- [    Test worker] com.LaVoz.LaVoz.LaVozApplicationTests    : Started LaVozApplicationTests in 1.991 seconds (process running for 2.368)
 </pre>
 </span>
 </div>
@@ -127,7 +150,7 @@ WARNING: Dynamic loading of agents will be disallowed by default in a future rel
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.2</a> at 2025. 6. 22. 오후 3:04:04</p>
+<a href="https://www.gradle.org">Gradle 8.14.2</a> at 2025. 6. 22. 오후 11:49:10</p>
 </div>
 </div>
 </body>

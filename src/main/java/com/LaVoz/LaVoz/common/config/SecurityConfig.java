@@ -1,18 +1,17 @@
 package com.LaVoz.LaVoz.common.config;
 
+import com.LaVoz.LaVoz.common.exception.AuthenticationException;
+import com.LaVoz.LaVoz.common.security.CustomUserDetailsService;
+import com.LaVoz.LaVoz.common.security.JwtAuthorizationFilter;
+import com.LaVoz.LaVoz.common.security.JwtUtil;
+import com.LaVoz.LaVoz.repository.MemberRepository;
+import com.LaVoz.LaVoz.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hufs_cheongwon.common.exception.AuthenticationException;
-import com.hufs_cheongwon.common.security.*;
-import com.hufs_cheongwon.repository.AdminRepository;
-import com.hufs_cheongwon.repository.BlackListRepository;
-import com.hufs_cheongwon.repository.UsersRepository;
-import com.hufs_cheongwon.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import com.LaVoz.LaVoz.common.security.JwtUserLoginFilter;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,6 +37,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final TokenService tokenService;
     private final AuthenticationException authenticationException;
+    private final MemberRepository memberRepository;
 
     @Bean
     public SecurityFilterChain commonFilterChain(HttpSecurity http) throws Exception{
@@ -50,7 +50,11 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((auth) -> auth
-                        .anyRequest().permitAll())
+                        .requestMatchers("/member/login", "/member/register", "/swagger-ui/*", "/member/check-duplicated-loginId").permitAll()
+                        .requestMatchers("member/test").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .addFilterAt(jwtUserLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(authenticationException)
@@ -59,7 +63,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    //CustomUserDetails 두 개 설정 -> 명시적으로 등록 해줘야 함
     @Bean
     public JwtUserLoginFilter jwtUserLoginFilter() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -72,7 +75,7 @@ public class SecurityConfig {
                 objectMapper,
                 tokenService);
         jwtUserLoginFilter.setAuthenticationManager(providerManager);
-        jwtUserLoginFilter.setFilterProcessesUrl("/user/login");
+        jwtUserLoginFilter.setFilterProcessesUrl("/member/login");
         return jwtUserLoginFilter;
     }
 
@@ -86,9 +89,7 @@ public class SecurityConfig {
         return JwtAuthorizationFilter.builder()
                 .jwtUtil(jwtUtil)
                 .authenticationException(authenticationException)
-                .blackListRepository(blackListRepository)
-                .usersRepository(usersRepository)
-                .adminRepository(adminRepository)
+                .memberRepository(memberRepository)
                 .build();
     }
 
