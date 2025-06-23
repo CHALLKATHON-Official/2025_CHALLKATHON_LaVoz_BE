@@ -30,6 +30,11 @@ public enum ErrorStatus {
     TOKEN_INVALID(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4011), "로그인이 필요합니다."),
     TOKEN_EXPIRATION(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4012), "만료된 토큰입니다."),
     COOKIE_EMPTY(HttpStatus.BAD_REQUEST, StatusCode.COMMON.getCode(4016), "쿠키가 비어있습니다."),
+    MEMBER_ORGANIZATION_NOT_FOUND(HttpStatus.NOT_FOUND, StatusCode.USER.getCode(4017), "조직의 멤버가 아닙니다."),
+
+    ORGANIZATION_NOT_FOUND(HttpStatus.NOT_FOUND, StatusCode.ORGANIZATION.getCode(5001), "조직을 찾을 수 없습니다."),
+
+    NOTE_NOT_FOUND(HttpStatus.NOT_FOUND, StatusCode.NOTE.getCode(6001), "노트가 없습니다.")
     ;
 
 

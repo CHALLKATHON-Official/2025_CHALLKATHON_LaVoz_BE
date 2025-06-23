@@ -44,6 +44,9 @@ dependencies {
 	//스웨거
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 
+	//Webflux
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 //	//junit
 //	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 //	testImplementation 'org.mockito:mockito-core:5.9.0'

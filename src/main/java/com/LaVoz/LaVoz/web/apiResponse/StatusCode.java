@@ -4,6 +4,9 @@ public enum StatusCode {
 
     COMMON("COMMON"),
     USER("USER"),
+    STATE("STATE"),
+    ORGANIZATION("ORGANIZATION"),
+    NOTE("NOTE"),
     ;
 
     private final String prefix;
