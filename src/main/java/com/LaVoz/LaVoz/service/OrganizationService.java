@@ -63,4 +63,26 @@ public class OrganizationService {
             .name(savedOrganization.getName())
             .build();
     }
+
+/**
+ * Organization을 삭제
+ * 해당 Organization에 연결된 모든 관계(MemberOrganization, Status, Note)도 함께 삭제
+ */
+@Transactional
+public boolean deleteOrganization(Long organizationId, Long memberId) {
+    Organization organization = organizationRepository.findById(organizationId)
+            .orElseThrow(() -> new IllegalArgumentException("Organization not found with id: " + organizationId));
+
+    boolean isMemberInOrganization = memberOrganizationRepository
+            .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
+    
+    if (!isMemberInOrganization) {
+        throw new IllegalArgumentException("Member with id " + memberId + 
+                " does not belong to Organization with id " + organizationId);
+    }
+
+    organizationRepository.delete(organization);
+    
+    return true;
+}
 }

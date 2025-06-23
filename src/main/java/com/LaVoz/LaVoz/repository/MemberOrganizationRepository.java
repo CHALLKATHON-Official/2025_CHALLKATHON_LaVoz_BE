@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface MemberOrganizationRepository extends JpaRepository<MemberOrganization, Long> {
     List<MemberOrganization> findByMember_MemberId(Long memberId);
+
+    boolean existsByMember_MemberIdAndOrganization_OrganizationId(Long memberId, Long organizationId);
 }
+
