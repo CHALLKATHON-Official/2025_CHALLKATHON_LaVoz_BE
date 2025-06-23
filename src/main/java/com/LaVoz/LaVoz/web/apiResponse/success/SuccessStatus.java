@@ -21,6 +21,10 @@ public enum SuccessStatus {
     USER_INFO_RETRIEVED(HttpStatus.OK, StatusCode.USER.getCode(2004), "유저 정보가 조회되었습니다."),
     USER_LOGIN_SUCCESS(HttpStatus.OK, StatusCode.USER.getCode(2005), "성공적으로 로그인되었습니다."),
     USER_PASSWORD_UPDATE_SUCCESS(HttpStatus.OK, StatusCode.USER.getCode(2006), "성공적으로 비밀번호가 변경되었습니다."),
+
+    ORGANIZATION_CREATED_SUCCESS(HttpStatus.OK, StatusCode.ORGANIZATION.getCode(2011), "Organization이 성공적으로 생성되었습니다."),
+    GET_ORGANIZATION_LIST_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2001), "Organization이 성공적으로 반환되었습니다."),
+    ORGANIZATION_DELETED_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2012), "Organization이 성공적으로 삭제되었습니다."),
     ;
 
 

@@ -6,7 +6,7 @@ import com.LaVoz.LaVoz.domain.MemberOrganization;
 import com.LaVoz.LaVoz.repository.MemberOrganizationRepository;
 import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.repository.OrganizationRepository;
-import com.LaVoz.LaVoz.web.dto.response.OrganizationResponseDto;
+import com.LaVoz.LaVoz.web.dto.response.OrganizationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +26,13 @@ public class OrganizationService {
     /**
      * 특정 멤버가 속한 모든 Organization 목록을 DTO로 변환하여 반환
      */
-    public List<OrganizationResponseDto> findOrganizationsByMemberId(Long memberId) {
+    public List<OrganizationResponse> findOrganizationsByMemberId(Long memberId) {
         List<MemberOrganization> memberOrganizations = 
             memberOrganizationRepository.findByMember_MemberId(memberId);
             
         return memberOrganizations.stream()
             .map(MemberOrganization::getOrganization)
-            .map(OrganizationResponseDto::from)
+            .map(OrganizationResponse::from)
             .collect(Collectors.toList());
     }
     
@@ -40,7 +40,7 @@ public class OrganizationService {
      * 새로운 Organization을 생성하고 생성한 멤버를 자동으로 추가
      */
     @Transactional
-    public OrganizationResponseDto createOrganization(String name, Long memberId) {
+    public OrganizationResponse createOrganization(String name, Long memberId) {
         // 멤버 조회
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
@@ -58,7 +58,7 @@ public class OrganizationService {
             .build();
         memberOrganizationRepository.save(memberOrganization);
         
-        return OrganizationResponseDto.builder()
+        return OrganizationResponse.builder()
             .organizationId(savedOrganization.getOrganizationId())
             .name(savedOrganization.getName())
             .build();

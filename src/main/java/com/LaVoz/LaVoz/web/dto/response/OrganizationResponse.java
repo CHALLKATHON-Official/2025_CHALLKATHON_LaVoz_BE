@@ -10,20 +10,20 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class OrganizationResponseDto {
+public class OrganizationResponse {
     private Long organizationId;
     private String name;
     private List<Note> notes;
     
     @Builder
-    public OrganizationResponseDto(Long organizationId, String name, List<Note> notes) {
+    public OrganizationResponse(Long organizationId, String name, List<Note> notes) {
         this.organizationId = organizationId;
         this.name = name;
         this.notes = notes;
     }
     
-    public static OrganizationResponseDto from(Organization organization) {
-        return OrganizationResponseDto.builder()
+    public static OrganizationResponse from(Organization organization) {
+        return OrganizationResponse.builder()
                 .organizationId(organization.getOrganizationId())
                 .name(organization.getName())
                 .notes(organization.getNotes())
