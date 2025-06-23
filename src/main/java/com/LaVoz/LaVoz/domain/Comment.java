@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment extends BaseTimeEntity{
+@Getter
+public class Comment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +24,6 @@ public class Comment extends BaseTimeEntity{
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "note_key", nullable = false)
+    @JoinColumn(name = "note_id", nullable = true)
     private Note note;
 }

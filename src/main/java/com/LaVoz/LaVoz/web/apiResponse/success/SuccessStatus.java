@@ -23,6 +23,11 @@ public enum SuccessStatus {
     USER_PASSWORD_UPDATE_SUCCESS(HttpStatus.OK, StatusCode.USER.getCode(2006), "성공적으로 비밀번호가 변경되었습니다."),
 
     STATE_ANALYSIS_SUCCESS(HttpStatus.OK, StatusCode.STATE.getCode(4001), "성공적으로 아이 상태 분석을 생성 혹은 갱신하였습니다."),
+
+    ORGANIZATION_CREATED_SUCCESS(HttpStatus.OK, StatusCode.ORGANIZATION.getCode(2011), "Organization이 성공적으로 생성되었습니다."),
+    GET_ORGANIZATION_LIST_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2001), "Organization이 성공적으로 반환되었습니다."),
+    ORGANIZATION_DELETED_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2012), "Organization이 성공적으로 삭제되었습니다."),
+    MEMBER_ADDED_TO_ORGANIZATION_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2012), "Organization에 Member가 성공적으로 추가되었습니다."),
     ;
 
 

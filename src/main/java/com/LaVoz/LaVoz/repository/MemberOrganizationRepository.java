@@ -10,3 +10,4 @@ public interface MemberOrganizationRepository extends JpaRepository<MemberOrgani
 
     boolean existsByMember_MemberIdAndOrganization_OrganizationId(Long memberId, Long organizationId);
 }
+

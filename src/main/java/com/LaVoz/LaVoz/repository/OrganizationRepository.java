@@ -1,6 +1,5 @@
 package com.LaVoz.LaVoz.repository;
 
-
 import com.LaVoz.LaVoz.domain.Organization;
 import com.LaVoz.LaVoz.domain.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;

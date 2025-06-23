@@ -202,7 +202,7 @@ public class ChatGptService {
     private ChildStatusResponse convertToResponse(Status status, Organization organization) {
         return ChildStatusResponse.builder()
                 .organizationId(organization.getOrganizationId())
-                .childName(organization.getChildName())
+                .childName(organization.getName())
                 .statusId(status.getStatusId())
                 .chatGptStatusDto(ChatGptStatusDto.fromStatus(status))
                 .build();
