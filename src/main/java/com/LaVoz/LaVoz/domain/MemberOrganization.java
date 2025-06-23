@@ -3,12 +3,14 @@ package com.LaVoz.LaVoz.domain;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
 public class MemberOrganization extends BaseTimeEntity{
 
     @Id

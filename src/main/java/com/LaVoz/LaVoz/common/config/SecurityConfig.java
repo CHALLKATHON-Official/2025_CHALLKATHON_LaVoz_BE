@@ -51,7 +51,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/member/login", "/member/register", "/swagger-ui/*", "/member/check-duplicated-loginId").permitAll()
-                        .requestMatchers("member/test").authenticated()
+                        .requestMatchers("member/test", "organization/*").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterAt(jwtUserLoginFilter(), UsernamePasswordAuthenticationFilter.class)
