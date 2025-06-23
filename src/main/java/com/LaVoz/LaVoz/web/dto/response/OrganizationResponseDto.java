@@ -12,7 +12,7 @@ public class OrganizationResponseDto {
     private String name;
     
     @Builder
-    public OrganizationResponseDto(Long organizationId, String name, String description, String imageUrl) {
+    public OrganizationResponseDto(Long organizationId, String name) {
         this.organizationId = organizationId;
         this.name = name;
     }
