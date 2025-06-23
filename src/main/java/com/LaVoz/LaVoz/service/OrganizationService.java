@@ -85,4 +85,46 @@ public boolean deleteOrganization(Long organizationId, Long memberId) {
     
     return true;
 }
+
+/**
+ * 기존 Organization에 새로운 멤버를 추가
+ */
+@Transactional
+public boolean addMemberToOrganization(Long organizationId, Long memberId, Long requesterId) {
+    // 조직 존재 여부 확인
+    Organization organization = organizationRepository.findById(organizationId)
+            .orElseThrow(() -> new IllegalArgumentException("Organization not found with id: " + organizationId));
+    
+    // 요청자가 해당 조직에 속하는지 확인 (권한 검증)
+    boolean isRequesterInOrganization = memberOrganizationRepository
+            .existsByMember_MemberIdAndOrganization_OrganizationId(requesterId, organizationId);
+    
+    if (!isRequesterInOrganization) {
+        throw new IllegalArgumentException("Requester with id " + requesterId + 
+                " does not belong to Organization with id " + organizationId);
+    }
+    
+    // 추가할 멤버 존재 여부 확인
+    Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
+    
+    // 이미 조직에 속한 멤버인지 확인
+    boolean isMemberAlreadyInOrganization = memberOrganizationRepository
+            .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
+    
+    if (isMemberAlreadyInOrganization) {
+        throw new IllegalArgumentException("Member with id " + memberId + 
+                " already belongs to Organization with id " + organizationId);
+    }
+    
+    // MemberOrganization 생성 및 저장 (멤버와 Organization 연결)
+    MemberOrganization memberOrganization = MemberOrganization.builder()
+            .member(member)
+            .organization(organization)
+            .build();
+    
+    memberOrganizationRepository.save(memberOrganization);
+    
+    return true;
+}
 }

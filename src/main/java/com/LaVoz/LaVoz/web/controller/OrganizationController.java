@@ -76,4 +76,26 @@ public class OrganizationController {
                 result
         );
     }
+
+    /**
+     * 조직에 새로운 멤버 추가
+     * 현재 로그인한 사용자가 속한 조직에만 멤버 추가 가능
+     */
+    @PostMapping("/{organizationId}/members/{memberId}")
+    public ApiResponse<Boolean> addMemberToOrganization(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long organizationId,
+            @PathVariable Long memberId
+    ) {
+        boolean result = organizationService.addMemberToOrganization(
+                organizationId,
+                memberId,
+                customUserDetails.getMember().getMemberId()
+        );
+    
+        return ApiResponse.onSuccess(
+                SuccessStatus.MEMBER_ADDED_TO_ORGANIZATION_SUCCESS,
+                result
+        );
+    }
 }

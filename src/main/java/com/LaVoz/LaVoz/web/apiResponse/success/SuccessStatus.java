@@ -25,6 +25,7 @@ public enum SuccessStatus {
     ORGANIZATION_CREATED_SUCCESS(HttpStatus.OK, StatusCode.ORGANIZATION.getCode(2011), "Organization이 성공적으로 생성되었습니다."),
     GET_ORGANIZATION_LIST_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2001), "Organization이 성공적으로 반환되었습니다."),
     ORGANIZATION_DELETED_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2012), "Organization이 성공적으로 삭제되었습니다."),
+    MEMBER_ADDED_TO_ORGANIZATION_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2012), "Organization에 Member가 성공적으로 추가되었습니다."),
     ;
 
 
