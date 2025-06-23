@@ -24,9 +24,7 @@ public class OrganizationService {
     private final MemberRepository memberRepository;
     
     /**
-     * 특정 멤버가 속한 모든 Organization 목록을 DTO로 변환하여 반환합니다.
-     * @param memberId 조회할 멤버의 ID
-     * @return 멤버가 속한 Organization DTO 목록
+     * 특정 멤버가 속한 모든 Organization 목록을 DTO로 변환하여 반환
      */
     public List<OrganizationResponseDto> findOrganizationsByMemberId(Long memberId) {
         List<MemberOrganization> memberOrganizations = 
@@ -34,18 +32,12 @@ public class OrganizationService {
             
         return memberOrganizations.stream()
             .map(MemberOrganization::getOrganization)
-            .map(organization -> OrganizationResponseDto.builder()
-                    .organizationId(organization.getOrganizationId())
-                    .name(organization.getName())
-                    .build())
+            .map(OrganizationResponseDto::from)
             .collect(Collectors.toList());
     }
     
     /**
-     * 새로운 Organization을 생성하고 생성한 멤버를 자동으로 추가.
-     * @param name Organization 이름
-     * @param memberId 생성하는 멤버의 ID
-     * @return 생성된 Organization의 정보
+     * 새로운 Organization을 생성하고 생성한 멤버를 자동으로 추가
      */
     @Transactional
     public OrganizationResponseDto createOrganization(String name, Long memberId) {
