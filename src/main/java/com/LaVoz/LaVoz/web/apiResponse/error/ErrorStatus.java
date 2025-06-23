@@ -20,12 +20,16 @@ public enum ErrorStatus {
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4001), "존재하지 않는 유저입니다."),
     EMAIL_NOT_EXIST(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4002), "이메일은 필수입니다."),
     EMAIL_INVALID(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4003), "잘못된 이메일 형식입니다."),
-    EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4004), "중복된 이메일입니다."),
+    LOGIN_ID_DUPLICATED(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4004), "중복된 아이디입니다."),
     PASSWORD_NOT_EXIST(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4005), "비밀번호는 필수입니다."),
     PASSWORD_INVALID(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4006), "잘못된 비밀번호 형식입니다."),
     PASSWORD_WRONG(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4007), "잘못된 비밀번호입니다."),
     NICKNAME_INVALID(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4008), "잘못된 닉네임 형식입니다."),
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4009), "닉네임은 필수입니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, StatusCode.USER.getCode(4010), "존재하지 않는 리프레쉬 토큰입니다."),
+    TOKEN_INVALID(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4011), "로그인이 필요합니다."),
+    TOKEN_EXPIRATION(HttpStatus.BAD_REQUEST, StatusCode.USER.getCode(4012), "만료된 토큰입니다."),
+    COOKIE_EMPTY(HttpStatus.BAD_REQUEST, StatusCode.COMMON.getCode(4016), "쿠키가 비어있습니다."),
     ;
 
 

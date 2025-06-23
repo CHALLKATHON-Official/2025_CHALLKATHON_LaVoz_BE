@@ -1,5 +1,5 @@
 package com.LaVoz.LaVoz.domain.enums;
 
 public enum Role {
-    GUARDIAN, DOCTOR, COUNSELOR, WARD;
+    ROLE_GUARDIAN, ROLE_DOCTOR, ROLE_COUNSELOR, ROLE_CHILD;
 }

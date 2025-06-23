@@ -4,6 +4,7 @@ import com.LaVoz.LaVoz.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
 public class Member extends BaseTimeEntity {
 
     @Id
@@ -21,6 +23,7 @@ public class Member extends BaseTimeEntity {
     private Long memberId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20)
     private Role role;
 
     @Column(name = "image_url")
@@ -33,6 +36,7 @@ public class Member extends BaseTimeEntity {
     private String password;
 
     @Column(nullable = false)
+    private String loginId;
     private String email;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -46,4 +50,8 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MemberOrganization> userOrganizations = new ArrayList<>();
+
+    public void setEncodedPassword(String password) {
+        this.password = password;
+    }
 }
