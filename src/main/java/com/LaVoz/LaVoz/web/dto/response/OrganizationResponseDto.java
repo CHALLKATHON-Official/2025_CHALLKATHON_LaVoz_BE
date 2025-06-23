@@ -10,15 +10,11 @@ import lombok.NoArgsConstructor;
 public class OrganizationResponseDto {
     private Long organizationId;
     private String name;
-    private String description;
-    private String imageUrl;
     
     @Builder
     public OrganizationResponseDto(Long organizationId, String name, String description, String imageUrl) {
         this.organizationId = organizationId;
         this.name = name;
-        this.description = description;
-        this.imageUrl = imageUrl;
     }
     
     public static OrganizationResponseDto from(Organization organization) {
