@@ -196,4 +196,161 @@ class OrganizationServiceTest {
                 .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
         verify(organizationRepository, never()).delete(any());
     }
+
+    @Test
+    @DisplayName("조직에 새 멤버 추가 성공")
+    void addMemberToOrganization_Success() {
+        // given
+        Long organizationId = 1L;
+        Long memberId = 2L;
+        Long requesterId = 1L;
+
+        Member newMember = Member.builder()
+                .memberId(memberId)
+                .email("newmember@example.com")
+                .name("새 멤버")
+                .build();
+
+        when(organizationRepository.findById(organizationId)).thenReturn(Optional.of(testOrganization));
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(newMember));
+
+        // 요청자가 조직에 속함
+        when(memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(
+                requesterId, organizationId)).thenReturn(true);
+
+        // 추가할 멤버는 아직 조직에 속하지 않음
+        when(memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(
+                memberId, organizationId)).thenReturn(false);
+
+        // when
+        boolean result = organizationService.addMemberToOrganization(organizationId, memberId, requesterId);
+
+        // then
+        assertThat(result).isTrue();
+        verify(organizationRepository, times(1)).findById(organizationId);
+        verify(memberRepository, times(1)).findById(memberId);
+        verify(memberOrganizationRepository, times(1))
+                .existsByMember_MemberIdAndOrganization_OrganizationId(requesterId, organizationId);
+        verify(memberOrganizationRepository, times(1))
+                .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
+        verify(memberOrganizationRepository, times(1)).save(any(MemberOrganization.class));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 조직에 멤버 추가 시 예외 발생")
+    void addMemberToOrganization_OrganizationNotFound() {
+        // given
+        Long organizationId = 999L;
+        Long memberId = 2L;
+        Long requesterId = 1L;
+
+        when(organizationRepository.findById(organizationId)).thenReturn(Optional.empty());
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            organizationService.addMemberToOrganization(organizationId, memberId, requesterId);
+        });
+
+        assertThat(exception.getMessage()).contains("Organization not found");
+        verify(organizationRepository, times(1)).findById(organizationId);
+        verify(memberRepository, never()).findById(any());
+        verify(memberOrganizationRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("요청자가 조직에 속하지 않은 경우 예외 발생")
+    void addMemberToOrganization_RequesterNotInOrganization() {
+        // given
+        Long organizationId = 1L;
+        Long memberId = 2L;
+        Long requesterId = 3L;
+
+        when(organizationRepository.findById(organizationId)).thenReturn(Optional.of(testOrganization));
+
+        // 요청자가 조직에 속하지 않음
+        when(memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(
+                requesterId, organizationId)).thenReturn(false);
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            organizationService.addMemberToOrganization(organizationId, memberId, requesterId);
+        });
+
+        assertThat(exception.getMessage()).contains("does not belong to Organization");
+        verify(organizationRepository, times(1)).findById(organizationId);
+        verify(memberOrganizationRepository, times(1))
+                .existsByMember_MemberIdAndOrganization_OrganizationId(requesterId, organizationId);
+        verify(memberRepository, never()).findById(any());
+        verify(memberOrganizationRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 멤버 추가 시 예외 발생")
+    void addMemberToOrganization_MemberNotFound() {
+        // given
+        Long organizationId = 1L;
+        Long memberId = 999L;
+        Long requesterId = 1L;
+
+        when(organizationRepository.findById(organizationId)).thenReturn(Optional.of(testOrganization));
+
+        // 요청자가 조직에 속함
+        when(memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(
+                requesterId, organizationId)).thenReturn(true);
+
+        // 추가할 멤버가 존재하지 않음
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            organizationService.addMemberToOrganization(organizationId, memberId, requesterId);
+        });
+
+        assertThat(exception.getMessage()).contains("Member not found");
+        verify(organizationRepository, times(1)).findById(organizationId);
+        verify(memberOrganizationRepository, times(1))
+                .existsByMember_MemberIdAndOrganization_OrganizationId(requesterId, organizationId);
+        verify(memberRepository, times(1)).findById(memberId);
+        verify(memberOrganizationRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("이미 조직에 속한 멤버 추가 시 예외 발생")
+    void addMemberToOrganization_MemberAlreadyInOrganization() {
+        // given
+        Long organizationId = 1L;
+        Long memberId = 2L;
+        Long requesterId = 1L;
+
+        Member newMember = Member.builder()
+                .memberId(memberId)
+                .email("newmember@example.com")
+                .name("새 멤버")
+                .build();
+
+        when(organizationRepository.findById(organizationId)).thenReturn(Optional.of(testOrganization));
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(newMember));
+
+        // 요청자가 조직에 속함
+        when(memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(
+                requesterId, organizationId)).thenReturn(true);
+
+        // 추가할 멤버가 이미 조직에 속함
+        when(memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(
+                memberId, organizationId)).thenReturn(true);
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            organizationService.addMemberToOrganization(organizationId, memberId, requesterId);
+        });
+
+        assertThat(exception.getMessage()).contains("already belongs to Organization");
+        verify(organizationRepository, times(1)).findById(organizationId);
+        verify(memberOrganizationRepository, times(1))
+                .existsByMember_MemberIdAndOrganization_OrganizationId(requesterId, organizationId);
+        verify(memberRepository, times(1)).findById(memberId);
+        verify(memberOrganizationRepository, times(1))
+                .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
+        verify(memberOrganizationRepository, never()).save(any());
+    }
 }
