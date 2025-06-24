@@ -24,6 +24,6 @@ public class Comment extends BaseTimeEntity {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "note_id", nullable = true)
+    @JoinColumn(name = "note_id", nullable = false)
     private Note note;
 }
