@@ -22,6 +22,7 @@ public class NoteResponse {
     private String time;
     private Long memberId;
     private String memberName;
+    private String memberRole;
     private Long organizationId;
     private String organizationName;
     private LocalDateTime createdAt;
@@ -37,6 +38,7 @@ public class NoteResponse {
                 .time(note.getTime())
                 .memberId(note.getMember().getMemberId())
                 .memberName(note.getMember().getName())
+                .memberRole(note.getMember().getRole().name())
                 .organizationId(note.getOrganization() != null ? note.getOrganization().getOrganizationId() : null)
                 .organizationName(note.getOrganization() != null ? note.getOrganization().getName() : null)
                 .createdAt(note.getCreatedAt())

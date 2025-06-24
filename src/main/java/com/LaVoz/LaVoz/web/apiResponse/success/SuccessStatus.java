@@ -39,6 +39,16 @@ public enum SuccessStatus {
 
     COMMENT_CREATED_SUCCESS(HttpStatus.OK, StatusCode.COMMENT.getCode(2011), "Comment가 성공적으로 생성되었습니다."),
     COMMENT_DELETED_SUCCESS(HttpStatus.OK,StatusCode.COMMENT.getCode(2012), "Comment가 성공적으로 삭제되었습니다."),
+
+    // 게시물 관련 성공 메시지
+    BOARD_CREATED_SUCCESS(HttpStatus.CREATED, StatusCode.BOARD.getCode(2011), "게시물이 성공적으로 생성되었습니다."),
+    GET_BOARD_LIST_SUCCESS(HttpStatus.OK, StatusCode.BOARD.getCode(2001), "게시물 목록이 성공적으로 조회되었습니다."),
+    GET_BOARD_DETAIL_SUCCESS(HttpStatus.OK, StatusCode.BOARD.getCode(2002), "게시물 상세정보가 성공적으로 조회되었습니다."),
+    BOARD_UPDATED_SUCCESS(HttpStatus.OK, StatusCode.BOARD.getCode(2003), "게시물이 성공적으로 수정되었습니다."),
+    BOARD_DELETED_SUCCESS(HttpStatus.OK, StatusCode.BOARD.getCode(2012), "게시물이 성공적으로 삭제되었습니다."),
+    // 게시물 댓글 관련 성공 메시지
+    GET_BOARD_COMMENTS_SUCCESS(HttpStatus.OK, StatusCode.BOARD.getCode(2004), "게시물 댓글 목록이 성공적으로 조회되었습니다."),
+    COMMENT_UPDATED_SUCCESS(HttpStatus.OK, StatusCode.COMMENT.getCode(2002), "댓글이 성공적으로 수정되었습니다."),
     ;
 
 

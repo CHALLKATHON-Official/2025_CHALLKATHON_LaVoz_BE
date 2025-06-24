@@ -17,6 +17,7 @@ public class CommentResponse {
     private String content;
     private Long memberId;
     private String memberName;
+    private String memberRole;
     private Long noteId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -27,6 +28,7 @@ public class CommentResponse {
                 .content(comment.getContent())
                 .memberId(comment.getMember().getMemberId())
                 .memberName(comment.getMember().getName())
+                .memberRole(comment.getMember().getRole().name())
                 .noteId(comment.getNote().getNoteId())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
