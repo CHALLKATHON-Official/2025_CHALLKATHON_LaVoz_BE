@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor
@@ -24,9 +25,11 @@ public class OrganizationResponse {
     
     public static OrganizationResponse from(Organization organization) {
         return OrganizationResponse.builder()
-                .organizationId(organization.getOrganizationId())
-                .name(organization.getName())
-                .notes(organization.getNotes().stream().map(NoteResponse::from).toList())
-                .build();
-    }
+            .organizationId(organization.getOrganizationId())
+            .name(organization.getName())
+            .notes(Optional.ofNullable(organization.getNotes())
+                  .map(notes -> notes.stream().map(NoteResponse::from).toList())
+                  .orElse(List.of()))
+            .build();
+}
 }
