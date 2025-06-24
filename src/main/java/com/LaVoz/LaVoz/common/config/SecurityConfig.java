@@ -7,11 +7,13 @@ import com.LaVoz.LaVoz.common.security.JwtUtil;
 import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.models.PathItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.LaVoz.LaVoz.common.security.JwtUserLoginFilter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -51,6 +53,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/member/login", "/member/register", "/swagger-ui/**", "/member/check-duplicated-loginId").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/boards/**").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/boards/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,"/boards/**").authenticated()
                         .requestMatchers("/member/test", "/organization/**", "/organizations/**").authenticated()
                         .anyRequest().permitAll()
                 )
