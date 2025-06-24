@@ -32,7 +32,10 @@ public enum SuccessStatus {
     NOTE_CREATED_SUCCESS(HttpStatus.OK, StatusCode.NOTE.getCode(2011), "Note가 성공적으로 생성되었습니다."),
     GET_ORGANIZATION_NOTES_SUCCESS(HttpStatus.OK,StatusCode.NOTE.getCode(2001), "Note가 성공적으로 반환되었습니다."),
     GET_NOTE_DETAIL_SUCCESS(HttpStatus.OK,StatusCode.NOTE.getCode(2002), "Note의 상세정보가 성공적으로 반환되었습니다."),
-    NOTE_DELETED_SUCCESS(HttpStatus.OK,StatusCode.NOTE.getCode(2012), "Note가 성공적으로 삭제되었습니다.")
+    NOTE_DELETED_SUCCESS(HttpStatus.OK,StatusCode.NOTE.getCode(2012), "Note가 성공적으로 삭제되었습니다."),
+
+    COMMENT_CREATED_SUCCESS(HttpStatus.OK, StatusCode.COMMENT.getCode(2011), "Comment가 성공적으로 생성되었습니다."),
+    COMMENT_DELETED_SUCCESS(HttpStatus.OK,StatusCode.COMMENT.getCode(2012), "Comment가 성공적으로 삭제되었습니다."),
     ;
 
 

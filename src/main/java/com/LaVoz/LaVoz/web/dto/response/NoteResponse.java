@@ -26,7 +26,7 @@ public class NoteResponse {
     private String organizationName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<Comment> comments;
+    private List<CommentResponse> comments;
 
     public static NoteResponse from(Note note) {
         return NoteResponse.builder()
@@ -41,7 +41,7 @@ public class NoteResponse {
                 .organizationName(note.getOrganization() != null ? note.getOrganization().getName() : null)
                 .createdAt(note.getCreatedAt())
                 .updatedAt(note.getUpdatedAt())
-                .comments(note.getComments())
+                .comments(note.getComments().stream().map(CommentResponse::from).toList())
                 .build();
     }
 }
