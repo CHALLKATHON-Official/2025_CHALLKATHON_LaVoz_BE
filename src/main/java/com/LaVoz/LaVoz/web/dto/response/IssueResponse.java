@@ -11,10 +11,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChildStatusResponse {
-    private String childName;
-    private Long statusId;
-    private ChatGptStatusDto chatGptStatusDto;
+public class IssueResponse {
+    private String question;
+    private String answer;
     private Long issueId;
     private Long  memberId;
     private String memberName;

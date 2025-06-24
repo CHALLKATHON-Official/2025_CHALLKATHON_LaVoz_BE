@@ -2,6 +2,7 @@ package com.LaVoz.LaVoz.common.openai.templates;
 
 import com.LaVoz.LaVoz.domain.Note;
 import com.LaVoz.LaVoz.domain.Status;
+import com.LaVoz.LaVoz.web.dto.request.IssueRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,6 +16,33 @@ public class PromptManager {
     /**
      * 이슈에 대한 답변 프롬프트 생성
      */
+    public String createIssuePrompt(String question, Status currentStatus) {
+        // 기존 상태 데이터 문자열 생성
+        String existingStatusData = buildExistingStatusData(currentStatus);
+
+        PromptTemplate promptTemplate = new PromptTemplate();
+        return promptTemplate.fillTemplate(
+                """
+                ## 명령
+                다음은 자폐 스펙트럼 특성을 가진 아이의 상태 정보입니다. 아래 내용을 참고하여 보호자가 보낸 질문에 성실하고 구체적으로 답변해주세요.
+                - 아이의 하루 시간대별 감정과 행동 패턴, 감정별 행동 경향, 감각 자극에 대한 민감도 정보는 질문의 맥락을 이해하기 위한 참고 자료일 뿐, 그 자체를 분석하거나 요약하지 마세요.
+                - 질문에 집중하여 보호자가 원하는 해석이나 조언을 직접적으로 제공해주세요.
+                - 보호자가 쉽게 이해할 수 있도록 일상적인 한국어 문장으로 설명해주세요.
+                - GPT나 인공지능이라는 표현은 사용하지 마세요.
+                - 응답은 분석과 조언 중심으로, 구체적인 원인 설명과 대응 방법을 포함해주세요.
+                - 명확하지 않은 부분은 “추가 관찰이 필요합니다” 또는 “개별 차이를 고려해야 합니다” 등의 표현을 사용해주세요.
+
+                ## 아이의 상태 정보
+                %s
+
+                ## 보호자의 질문
+                %s
+                """.formatted(existingStatusData, question),
+                """
+                보호자의 질문에 대해 아이의 특성과 상태 정보를 반영하여, 차분하고 진정성 있는 문장으로 답변해주세요.
+                """
+        );
+    }
 
     /**
      * 아이 상태 갱신을 위한 프롬프트 생성
@@ -30,13 +58,19 @@ public class PromptManager {
         return promptTemplate.fillTemplate(
                         """
                         ## 명령
-                        기존 데이터와 새로운 아이의 행동 노트를 보고 아이의 다음 상태 데이터를 생성 혹은 갱신해줘
-                        1. 시간별 빈번한 행동과 감정(time_emotion_behavior)
-                        2. 특정 감정일 때 자주 발생한 행동(emotion_behavior_map)
-                        3. 청각, 시각, 촉각, 후각, 미각, 사회적 자극에 따른 민감 정도를 1~5로 나타내줘(sensitivity_profile)
-                        - 민감도는 1=매우 둔감, 5=매우 민감으로 평가
-                        - 행동은 구체적이고 관찰 가능한 것으로 작성
-                        - 오직 JSON 형식으로만 응답하고 다른 설명은 포함하지 마세요
+                        다음은 자폐 스펙트럼 특성을 가진 아이에 대한 상태 분석 요청입니다.
+                        기존 상태 데이터와 새로운 행동 노트를 바탕으로 아이의 다음 상태 데이터를 JSON 형식으로 생성하거나 갱신해주세요.
+                        
+                        분석 항목:
+                        1. 시간별 감정과 주된 행동
+                        2. 감정별 반복 행동
+                        3. 감각 자극에 대한 민감도
+                        
+                        작성 시 유의사항:
+                        - 민감도는 1~5 사이의 정수로 표현하며, 1은 '매우 둔감', 5는 '매우 민감'을 의미합니다.
+                        - 행동은 구체적이고 관찰 가능한 표현을 사용해주세요.
+                        - 자폐 스펙트럼 특성을 고려해 행동을 해석해주세요.
+                        - 반드시 아래의 응답값 형식에 맞춘 JSON 형식으로만 응답해주세요. 다른 설명이나 말머리는 포함하지 마세요.
                         
                         ## 기존 아이 상태 데이터
                         %s
@@ -117,11 +151,12 @@ public class PromptManager {
         for (int i = 0; i < notes.size(); i++) {
             Note note = notes.get(i);
             notesBuilder.append(String.format(
-                    "노트 %d:\n제목: %s\n내용: %s\n감정: %s\n\n",
+                    "노트 %d:\n제목: %s\n내용: %s\n감정: %s\n시간대: %s\n\n",
                     i + 1,
                     note.getTitle() != null ? note.getTitle() : "제목 없음",
                     note.getContent() != null ? note.getContent() : "내용 없음",
-                    note.getEmotion() != null ? note.getEmotion() : "감정 정보 없음"
+                    note.getEmotion() != null ? note.getEmotion() : "감정 정보 없음",
+                    note.getTime() != null ? note.getTime() : "시간대 정보 없음"
             ));
         }
 

@@ -5,24 +5,19 @@ import com.LaVoz.LaVoz.common.openai.OpenAiApiClient;
 import com.LaVoz.LaVoz.common.openai.dto.ChatGptResponse;
 import com.LaVoz.LaVoz.common.openai.dto.Message;
 import com.LaVoz.LaVoz.common.openai.templates.PromptManager;
-import com.LaVoz.LaVoz.domain.Member;
-import com.LaVoz.LaVoz.domain.Note;
-import com.LaVoz.LaVoz.domain.Organization;
-import com.LaVoz.LaVoz.domain.Status;
-import com.LaVoz.LaVoz.repository.MemberOrganizationRepository;
-import com.LaVoz.LaVoz.repository.NoteRepository;
-import com.LaVoz.LaVoz.repository.OrganizationRepository;
-import com.LaVoz.LaVoz.repository.StatusRepository;
+import com.LaVoz.LaVoz.domain.*;
+import com.LaVoz.LaVoz.repository.*;
 import com.LaVoz.LaVoz.web.apiResponse.error.ErrorStatus;
+import com.LaVoz.LaVoz.web.dto.request.IssueRequest;
 import com.LaVoz.LaVoz.web.dto.response.ChatGptStatusDto;
 import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
+import com.LaVoz.LaVoz.web.dto.response.IssueResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 
@@ -39,6 +34,7 @@ public class ChatGptService {
     private final NoteRepository noteRepository;
     private final OrganizationRepository organizationRepository;
     private final MemberOrganizationRepository memberOrganizationRepository;
+    private final IssueRepository issueRepository;
 
     @Value("${openai.model}")
     private String model;
@@ -51,6 +47,56 @@ public class ChatGptService {
 
     private final String systemRole = "system";
     private final String userRole = "user";
+
+    /**
+     * 이슈 답변 생성
+     */
+    public IssueResponse issue(IssueRequest issueRequest, Long organizationId, Member member){
+        String question = issueRequest.getQuestion();
+
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorStatus.ORGANIZATION_NOT_FOUND));
+
+        // 멤버 권한 확인
+        boolean isOrganizationMember = memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(member.getMemberId(), organizationId);
+        if (!isOrganizationMember) {
+            throw new ResourceNotFoundException(ErrorStatus.MEMBER_ORGANIZATION_NOT_FOUND);
+        }
+
+        // 현재 아이 상태 조회
+        Status currentStatus = statusRepository.findTopByOrganizationOrderByCreatedAtDesc(organization)
+                .orElse(null);
+        if (currentStatus == null) {
+            log.info("조직 {}에 대한 기존 상태 데이터가 없음", organizationId);
+        } else {
+            log.debug("기존 상태 데이터 조회 완료 - statusId: {}", currentStatus.getStatusId());
+        }
+
+        // ChatGPT API 호출
+        String prompt = promptManager.createIssuePrompt(question,currentStatus);
+        log.debug("생성된 프롬프트: \n{}", prompt);
+        String responseContent = callChatGptApi(prompt);
+
+        Issue issue = Issue.builder()
+                .question(question)
+                .answer(responseContent)
+                .member(member)
+                .organization(organization)
+                .build();
+        Issue savedIssue = issueRepository.save(issue);
+
+        return IssueResponse.builder()
+                .question(question)
+                .answer(responseContent)
+                .issueId(savedIssue.getIssueId())
+                .memberId(member.getMemberId())
+                .memberName(member.getName())
+                .organizationId(organization.getOrganizationId())
+                .organizationName(organization.getName())
+                .createdAt(savedIssue.getCreatedAt())
+                .updatedAt(savedIssue.getUpdatedAt())
+                .build();
+    }
 
     /**
      * 상태 분석
@@ -82,7 +128,7 @@ public class ChatGptService {
         // 기존 상태가 있고 새로운 노트가 없는 경우 -> 기존 상태 반환 (GPT 호출 X)
         if (currentStatus != null && newNotes.isEmpty()) {
             log.info("기존 상태가 있고 새로운 노트가 없어 기존 상태를 반환합니다.");
-            return convertToResponse(currentStatus, organization);
+            return convertToResponse(currentStatus, organization, member);
         }
 
         // 기존 상태가 없고 노트도 없는 경우 -> 에러 또는 빈 상태 처리
@@ -96,6 +142,8 @@ public class ChatGptService {
 
         // ChatGPT API 호출
         String prompt = promptManager.createChildStateAnalysisPrompt(currentStatus, newNotes);
+        System.out.println(prompt);
+
         String responseContent = callChatGptApi(prompt);
 
         // JSON 응답을 DTO로 변환
@@ -105,7 +153,7 @@ public class ChatGptService {
         Status savedStatus = saveStatusToDatabase(chatGptDto, organization);
 
         // 응답 DTO 생성 및 반환
-        return convertToResponse(savedStatus, organization);
+        return convertToResponse(savedStatus, organization, member);
     }
 
     /**
@@ -133,7 +181,7 @@ public class ChatGptService {
      */
     private String callChatGptApi(String prompt) {
         List<Message> messages = List.of(
-                new Message(systemRole, "당신은 아동 행동 분석 전문가입니다. 주어진 정보를 바탕으로 정확하고 유용한 분석을 제공해주세요."),
+                new Message(systemRole, "당신은 자폐 스펙트럼 아동 행동 분석 전문가입니다. 주어진 정보를 바탕으로 정확하고 유용한 분석을 제공해주세요."),
                 new Message(userRole, prompt)
         );
 
@@ -199,12 +247,17 @@ public class ChatGptService {
     /**
      * Status 엔티티를 응답 DTO로 변환
      */
-    private ChildStatusResponse convertToResponse(Status status, Organization organization) {
+    private ChildStatusResponse convertToResponse(Status status, Organization organization, Member member) {
         return ChildStatusResponse.builder()
-                .organizationId(organization.getOrganizationId())
                 .childName(organization.getName())
                 .statusId(status.getStatusId())
                 .chatGptStatusDto(ChatGptStatusDto.fromStatus(status))
+                .memberId(member.getMemberId())
+                .memberName(member.getName())
+                .organizationId(organization.getOrganizationId())
+                .organizationName(organization.getName())
+                .createdAt(status.getCreatedAt())
+                .updatedAt(status.getUpdatedAt())
                 .build();
     }
 }

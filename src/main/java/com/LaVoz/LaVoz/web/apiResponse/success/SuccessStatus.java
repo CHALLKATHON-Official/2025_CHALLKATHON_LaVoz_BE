@@ -24,6 +24,9 @@ public enum SuccessStatus {
 
     STATE_ANALYSIS_SUCCESS(HttpStatus.OK, StatusCode.STATE.getCode(4001), "성공적으로 아이 상태 분석을 생성 혹은 갱신하였습니다."),
 
+    ISSUE_ANSWER_SUCCESS(HttpStatus.OK, StatusCode.ISSUE.getCode(5001), "이슈에 대한 답변이 성공적으로 생성되었습니다."),
+    GET_MY_ORGANIZATION_ISSUES_SUCCESS(HttpStatus.OK, StatusCode.ISSUE.getCode(5002), "나의 조직에 대한 질문들을 성공적으로 조회하였습니다."),
+
     ORGANIZATION_CREATED_SUCCESS(HttpStatus.OK, StatusCode.ORGANIZATION.getCode(2011), "Organization이 성공적으로 생성되었습니다."),
     GET_ORGANIZATION_LIST_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2001), "Organization이 성공적으로 반환되었습니다."),
     ORGANIZATION_DELETED_SUCCESS(HttpStatus.OK,StatusCode.ORGANIZATION.getCode(2012), "Organization이 성공적으로 삭제되었습니다."),
