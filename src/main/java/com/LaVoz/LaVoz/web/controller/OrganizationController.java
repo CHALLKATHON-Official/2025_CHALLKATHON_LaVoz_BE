@@ -1,28 +1,26 @@
 package com.LaVoz.LaVoz.web.controller;
 
 
-import com.LaVoz.LaVoz.common.openai.dto.ChatGptResponse;
 import com.LaVoz.LaVoz.common.security.CustomUserDetails;
 import com.LaVoz.LaVoz.service.MemberService;
 import com.LaVoz.LaVoz.service.OrganizationService;
 import com.LaVoz.LaVoz.service.ChatGptService;
 import com.LaVoz.LaVoz.web.apiResponse.ApiResponse;
 import com.LaVoz.LaVoz.web.apiResponse.success.SuccessStatus;
+import com.LaVoz.LaVoz.web.dto.request.IssueRequest;
 import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
+import com.LaVoz.LaVoz.web.dto.response.IssueResponse;
 import com.LaVoz.LaVoz.web.dto.response.OrganizationResponse;
 import jakarta.validation.Valid;
-import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/organization")
@@ -117,4 +115,32 @@ public class OrganizationController {
         return ApiResponse.onSuccess(SuccessStatus.STATE_ANALYSIS_SUCCESS, childStatusResponse);
     }
 
+    @PostMapping("/{organization_id}/issue")
+    public ApiResponse<IssueResponse> issue(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("organization_id") Long organizationId,
+            @RequestBody IssueRequest issueRequest
+    ) throws IOException {
+        IssueResponse response = chatGptService.issue(issueRequest, organizationId, customUserDetails.getMember());
+        return ApiResponse.onSuccess(SuccessStatus.ISSUE_ANSWER_SUCCESS, response);
+    }
+
+    /**
+     * 내가 질문한 이슈들 조회
+     * @param customUserDetails
+     * @param organizationId
+     * @return
+     */
+    @GetMapping("/{organization_id}/issues")
+    public ApiResponse<List<IssueResponse>> getMyIssuesByOrganization(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("organization_id") Long organizationId
+    ) {
+        List<IssueResponse> responses = organizationService.getMyIssuesByOrganization(
+                organizationId,
+                customUserDetails.getMember()
+        );
+
+        return ApiResponse.onSuccess(SuccessStatus.GET_MY_ORGANIZATION_ISSUES_SUCCESS, responses);
+    }
 }

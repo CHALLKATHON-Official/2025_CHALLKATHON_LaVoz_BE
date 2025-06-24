@@ -1,11 +1,16 @@
 package com.LaVoz.LaVoz.service;
 
+import com.LaVoz.LaVoz.common.exception.ResourceNotFoundException;
+import com.LaVoz.LaVoz.domain.Issue;
 import com.LaVoz.LaVoz.domain.Member;
 import com.LaVoz.LaVoz.domain.Organization;
 import com.LaVoz.LaVoz.domain.MemberOrganization;
+import com.LaVoz.LaVoz.repository.IssueRepository;
 import com.LaVoz.LaVoz.repository.MemberOrganizationRepository;
 import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.repository.OrganizationRepository;
+import com.LaVoz.LaVoz.web.apiResponse.error.ErrorStatus;
+import com.LaVoz.LaVoz.web.dto.response.IssueResponse;
 import com.LaVoz.LaVoz.web.dto.response.OrganizationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,7 @@ public class OrganizationService {
     private final MemberOrganizationRepository memberOrganizationRepository;
     private final OrganizationRepository organizationRepository;
     private final MemberRepository memberRepository;
+    private final IssueRepository issueRepository;
     
     /**
      * 특정 멤버가 속한 모든 Organization 목록을 DTO로 변환하여 반환
@@ -127,4 +133,35 @@ public boolean addMemberToOrganization(Long organizationId, Long memberId, Long 
     
     return true;
 }
+
+    /**
+     * 조직의 내 이슈 목록 조회 (최신순)
+     */
+    public List<IssueResponse> getMyIssuesByOrganization(Long organizationId, Member member) {
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorStatus.ORGANIZATION_NOT_FOUND));
+
+        // 멤버 권한 확인
+        boolean isOrganizationMember = memberOrganizationRepository.existsByMember_MemberIdAndOrganization_OrganizationId(member.getMemberId(), organizationId);
+        if (!isOrganizationMember) {
+            throw new ResourceNotFoundException(ErrorStatus.MEMBER_ORGANIZATION_NOT_FOUND);
+        }
+
+        // 해당 조직에서 내가 작성한 이슈만 조회
+        List<Issue> myIssues = issueRepository.findByOrganizationAndMemberOrderByCreatedAtDesc(organization, member);
+
+        return myIssues.stream()
+                .map(issue -> IssueResponse.builder()
+                        .question(issue.getQuestion())
+                        .answer(issue.getAnswer())
+                        .issueId(issue.getIssueId())
+                        .memberId(issue.getMember().getMemberId())
+                        .memberName(issue.getMember().getName())
+                        .organizationId(issue.getOrganization().getOrganizationId())
+                        .organizationName(issue.getOrganization().getName())
+                        .createdAt(issue.getCreatedAt())
+                        .updatedAt(issue.getUpdatedAt())
+                        .build())
+                .toList();
+    }
 }
