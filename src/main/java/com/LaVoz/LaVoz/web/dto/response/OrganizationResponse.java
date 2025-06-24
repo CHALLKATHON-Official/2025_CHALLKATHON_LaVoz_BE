@@ -13,10 +13,10 @@ import java.util.List;
 public class OrganizationResponse {
     private Long organizationId;
     private String name;
-    private List<Note> notes;
-    
+    private List<NoteResponse> notes;
+
     @Builder
-    public OrganizationResponse(Long organizationId, String name, List<Note> notes) {
+    public OrganizationResponse(Long organizationId, String name, List<NoteResponse> notes) {
         this.organizationId = organizationId;
         this.name = name;
         this.notes = notes;
@@ -26,7 +26,7 @@ public class OrganizationResponse {
         return OrganizationResponse.builder()
                 .organizationId(organization.getOrganizationId())
                 .name(organization.getName())
-                .notes(organization.getNotes())
+                .notes(organization.getNotes().stream().map(NoteResponse::from).toList())
                 .build();
     }
 }
