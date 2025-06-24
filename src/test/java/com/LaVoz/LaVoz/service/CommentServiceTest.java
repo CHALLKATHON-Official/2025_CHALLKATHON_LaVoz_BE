@@ -4,6 +4,7 @@ import com.LaVoz.LaVoz.domain.Comment;
 import com.LaVoz.LaVoz.domain.Member;
 import com.LaVoz.LaVoz.domain.Note;
 import com.LaVoz.LaVoz.domain.Organization;
+import com.LaVoz.LaVoz.domain.enums.Role;
 import com.LaVoz.LaVoz.repository.CommentRepository;
 import com.LaVoz.LaVoz.repository.MemberOrganizationRepository;
 import com.LaVoz.LaVoz.repository.MemberRepository;
@@ -60,6 +61,7 @@ class CommentServiceTest {
         member = Member.builder()
                 .memberId(MEMBER_ID)
                 .name("테스트 회원")
+                .role(Role.ROLE_GUARDIAN)
                 .build();
 
         organization = Organization.builder()

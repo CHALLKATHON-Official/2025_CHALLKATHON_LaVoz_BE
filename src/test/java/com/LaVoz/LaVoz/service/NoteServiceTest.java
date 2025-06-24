@@ -3,6 +3,7 @@ package com.LaVoz.LaVoz.service;
 import com.LaVoz.LaVoz.domain.Member;
 import com.LaVoz.LaVoz.domain.Note;
 import com.LaVoz.LaVoz.domain.Organization;
+import com.LaVoz.LaVoz.domain.enums.Role;
 import com.LaVoz.LaVoz.repository.MemberOrganizationRepository;
 import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.repository.NoteRepository;
@@ -58,6 +59,7 @@ public class NoteServiceTest {
                 .memberId(1L)
                 .email("test@example.com")
                 .name("테스트 사용자")
+                .role(Role.ROLE_GUARDIAN)
                 .build();
 
         testOrganization = Organization.builder()
