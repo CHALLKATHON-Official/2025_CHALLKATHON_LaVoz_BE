@@ -8,7 +8,9 @@ public enum StatusCode {
     ORGANIZATION("ORGANIZATION"),
     NOTE("NOTE"),
     ISSUE("ISSUE"),
-    COMMENT("COMMENT")
+    COMMENT("COMMENT"),
+    BOARD("BOARD"),
+    BOARDCOMMENT("BOARDCOMMENT"),
     ;
 
     private final String prefix;

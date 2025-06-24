@@ -8,6 +8,7 @@ import com.LaVoz.LaVoz.service.ChatGptService;
 import com.LaVoz.LaVoz.web.apiResponse.ApiResponse;
 import com.LaVoz.LaVoz.web.apiResponse.success.SuccessStatus;
 import com.LaVoz.LaVoz.web.dto.request.IssueRequest;
+import com.LaVoz.LaVoz.web.dto.request.OrganizationCreateRequest;
 import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
 import com.LaVoz.LaVoz.web.dto.response.IssueResponse;
 import com.LaVoz.LaVoz.web.dto.response.OrganizationResponse;
@@ -37,12 +38,12 @@ public class OrganizationController {
     @PostMapping("/new")
     public ApiResponse<OrganizationResponse> createPetition(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Valid @RequestBody String organizationName
-    ) {
+            @Valid @RequestBody OrganizationCreateRequest organizationCreateRequest
+            ) {
         return ApiResponse.onSuccess(
                 SuccessStatus.ORGANIZATION_CREATED_SUCCESS,
                 organizationService.createOrganization(
-                        organizationName,
+                        organizationCreateRequest.getOrganizationName(),
                         customUserDetails.getMember().getMemberId()
                 ));
     }
