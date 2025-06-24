@@ -28,6 +28,8 @@ public class Note extends BaseTimeEntity {
 
     private String emotion;
 
+    private String time;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
