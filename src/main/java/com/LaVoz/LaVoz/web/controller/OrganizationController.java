@@ -1,29 +1,38 @@
 package com.LaVoz.LaVoz.web.controller;
 
+
+import com.LaVoz.LaVoz.common.openai.dto.ChatGptResponse;
 import com.LaVoz.LaVoz.common.security.CustomUserDetails;
 import com.LaVoz.LaVoz.service.MemberService;
 import com.LaVoz.LaVoz.service.OrganizationService;
+import com.LaVoz.LaVoz.service.ChatGptService;
 import com.LaVoz.LaVoz.web.apiResponse.ApiResponse;
 import com.LaVoz.LaVoz.web.apiResponse.success.SuccessStatus;
+import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
 import com.LaVoz.LaVoz.web.dto.response.OrganizationResponse;
 import jakarta.validation.Valid;
+import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/organization")
 @RequiredArgsConstructor
+@Slf4j
 public class OrganizationController {
     private final MemberService memberService;
     private final OrganizationService organizationService;
-    
+    private final ChatGptService chatGptService;
+
     /**
      * Organization 생성
      */
@@ -35,11 +44,11 @@ public class OrganizationController {
         return ApiResponse.onSuccess(
                 SuccessStatus.ORGANIZATION_CREATED_SUCCESS,
                 organizationService.createOrganization(
-                     organizationName,
-                     customUserDetails.getMember().getMemberId()   
+                        organizationName,
+                        customUserDetails.getMember().getMemberId()
                 ));
     }
-    
+
     /**
      * 현재 로그인한 사용자가 속한 모든 Organization 목록 조회
      */
@@ -50,13 +59,13 @@ public class OrganizationController {
         List<OrganizationResponse> organizations = organizationService.findOrganizationsByMemberId(
                 customUserDetails.getMember().getMemberId()
         );
-        
+
         return ApiResponse.onSuccess(
                 SuccessStatus.GET_ORGANIZATION_LIST_SUCCESS,
                 organizations
         );
     }
-    
+
     /**
      * Organization 삭제
      * 현재 로그인한 사용자가 속한 Organization만 삭제 가능
@@ -70,7 +79,7 @@ public class OrganizationController {
                 organizationId,
                 customUserDetails.getMember().getMemberId()
         );
-        
+
         return ApiResponse.onSuccess(
                 SuccessStatus.ORGANIZATION_DELETED_SUCCESS,
                 result
@@ -92,10 +101,20 @@ public class OrganizationController {
                 memberId,
                 customUserDetails.getMember().getMemberId()
         );
-    
+
         return ApiResponse.onSuccess(
                 SuccessStatus.MEMBER_ADDED_TO_ORGANIZATION_SUCCESS,
                 result
         );
     }
+
+    @PostMapping("/{organization_id}/state-analysis")
+    public ApiResponse<ChildStatusResponse> stateAnalysis(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("organization_id") Long organizationId
+    ) throws IOException {
+        ChildStatusResponse childStatusResponse = chatGptService.analyzeChildState(organizationId, customUserDetails.getMember());
+        return ApiResponse.onSuccess(SuccessStatus.STATE_ANALYSIS_SUCCESS, childStatusResponse);
+    }
+
 }
