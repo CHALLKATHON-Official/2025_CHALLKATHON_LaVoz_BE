@@ -107,7 +107,7 @@ public class NoteSearchService {
                         .field("title")
                         .query(keyword)
                         .fuzziness("AUTO")
-                        .prefixLength(3)
+                        .prefixLength(0)
                 )
         );
 
@@ -116,7 +116,7 @@ public class NoteSearchService {
                         .field("content")
                         .query(keyword)
                         .fuzziness("AUTO")
-                        .prefixLength(1)
+                        .prefixLength(0)
                 )
         );
 
