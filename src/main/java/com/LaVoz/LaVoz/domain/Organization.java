@@ -21,6 +21,10 @@ public class Organization extends BaseTimeEntity {
     private Long organizationId;
 
     private String name;
+    
+    // 5자리 인증 코드 추가
+    @Column(length = 5, unique = true)
+    private String inviteCode;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MemberOrganization> userOrganizations = new ArrayList<>();

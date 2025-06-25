@@ -8,6 +8,7 @@ import com.LaVoz.LaVoz.service.ChatGptService;
 import com.LaVoz.LaVoz.web.apiResponse.ApiResponse;
 import com.LaVoz.LaVoz.web.apiResponse.success.SuccessStatus;
 import com.LaVoz.LaVoz.web.dto.request.IssueRequest;
+import com.LaVoz.LaVoz.web.dto.request.JoinOrganizationRequest;
 import com.LaVoz.LaVoz.web.dto.request.OrganizationCreateRequest;
 import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
 import com.LaVoz.LaVoz.web.dto.response.IssueResponse;
@@ -29,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class OrganizationController {
-    private final MemberService memberService;
+
     private final OrganizationService organizationService;
     private final ChatGptService chatGptService;
 
@@ -137,9 +138,6 @@ public class OrganizationController {
 
     /**
      * 내가 질문한 이슈들 조회
-     * @param customUserDetails
-     * @param organizationId
-     * @return
      */
     @GetMapping("/{organization_id}/issues")
     public ApiResponse<List<IssueResponse>> getMyIssuesByOrganization(
@@ -153,4 +151,24 @@ public class OrganizationController {
 
         return ApiResponse.onSuccess(SuccessStatus.GET_MY_ORGANIZATION_ISSUES_SUCCESS, responses);
     }
+
+    /**
+     * 인증 코드를 사용하여 Organization에 가입
+     */
+    @PostMapping("/join")
+    public ApiResponse<OrganizationResponse> joinOrganizationByInviteCode(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Valid @RequestBody JoinOrganizationRequest joinRequest
+    ) {
+        OrganizationResponse response = organizationService.joinOrganizationByInviteCode(
+                joinRequest.getInviteCode(),
+                customUserDetails.getMember().getMemberId()
+        );
+
+        return ApiResponse.onSuccess(
+                SuccessStatus.MEMBER_ADDED_TO_ORGANIZATION_SUCCESS,
+                response
+        );
+    }
+
 }
