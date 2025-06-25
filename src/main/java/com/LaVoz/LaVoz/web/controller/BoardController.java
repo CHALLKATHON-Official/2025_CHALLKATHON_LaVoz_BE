@@ -48,10 +48,41 @@ public class BoardController {
      * 게시글 상세 조회
      */
     @GetMapping("/{boardId}")
-    public ApiResponse<BoardResponse> getBoard(@PathVariable Long boardId) {
-        BoardResponse response = boardService.getBoardById(boardId);
+    public ApiResponse<BoardResponse> getBoard(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal() CustomUserDetails customUserDetails
+    ) {
+        Long memberId = customUserDetails != null ?
+                customUserDetails.getMember().getMemberId() : null;
+
+        BoardResponse response = boardService.getBoardById(boardId, memberId);
         return ApiResponse.onSuccess(SuccessStatus.GET_BOARD_DETAIL_SUCCESS, response);
     }
+
+    /**
+     * 게시글 북마크 토글
+     */
+    @PostMapping("/{boardId}/bookmark")
+    public ApiResponse<Boolean> toggleBookmark(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        boolean isBookmarked = boardService.toggleBookmark(boardId, customUserDetails.getMember());
+        return ApiResponse.onSuccess(SuccessStatus.BOOKMARK_TOGGLED_SUCCESS, isBookmarked);
+    }
+
+    /**
+     * 사용자의 북마크한 게시글 목록 조회
+     */
+    @GetMapping("/bookmarks")
+    public ApiResponse<List<BoardResponse>> getBookmarkedBoards(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        List<BoardResponse> bookmarkedBoards =
+                boardService.getBookmarkedBoards(customUserDetails.getMember().getMemberId());
+        return ApiResponse.onSuccess(SuccessStatus.GET_BOOKMARKED_BOARDS_SUCCESS, bookmarkedBoards);
+    }
+
 
     /**
      * 게시글 수정
@@ -123,4 +154,14 @@ public class BoardController {
         boardService.deleteComment(commentId, customUserDetails.getMember().getMemberId());
         return ApiResponse.onSuccess(SuccessStatus.COMMENT_DELETED_SUCCESS, null);
     }
+
+    /**
+     * 조회수 높은 게시글 상위 10개 조회
+     */
+    @GetMapping("/top-viewed")
+    public ApiResponse<List<BoardResponse>> getTopViewedBoards() {
+        List<BoardResponse> topBoards = boardService.getTopViewedBoards();
+        return ApiResponse.onSuccess(SuccessStatus.GET_TOP_VIEWED_BOARDS_SUCCESS, topBoards);
+    }
+
 }
