@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 @OpenAPIDefinition(
         servers = {
                 @Server(url = "http://localhost:8080", description = "local 서버"),
+                @Server(url = "http://13.125.255.106:8080", description = "개발 서버"),
+                @Server(url = "https://api.logtism.shop", description = "개발 서버"),
         }
 )
 public class SwaggerConfig {

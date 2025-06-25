@@ -7,7 +7,6 @@ import com.LaVoz.LaVoz.common.security.JwtUtil;
 import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.models.PathItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -57,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/boards/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/boards/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE,"/boards/**").authenticated()
-                        .requestMatchers("/member/test", "/organization/**", "/organizations/**").authenticated()
+                        .requestMatchers("/member/test", "/organization/**", "/organizations/**", "/notes/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterAt(jwtUserLoginFilter(), UsernamePasswordAuthenticationFilter.class)
