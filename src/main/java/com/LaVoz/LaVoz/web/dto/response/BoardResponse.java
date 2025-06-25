@@ -19,6 +19,8 @@ public class BoardResponse {
     private String content;
     private Long memberId;
     private String memberName;
+    private int viewCount;
+    private boolean isBookmarked;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -29,8 +31,24 @@ public class BoardResponse {
                 .content(board.getContent())
                 .memberId(board.getMember().getMemberId())
                 .memberName(board.getMember().getName())
+                .viewCount(board.getViewCount())
                 .createdAt(board.getCreatedAt())
                 .updatedAt(board.getUpdatedAt())
                 .build();
+    }
+
+    public static BoardResponse from(Board board, boolean isBookmarked) {
+        return BoardResponse.builder()
+                .boardId(board.getBoardId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .memberId(board.getMember().getMemberId())
+                .memberName(board.getMember().getName())
+                .viewCount(board.getViewCount())
+                .isBookmarked(isBookmarked)
+                .createdAt(board.getCreatedAt())
+                .updatedAt(board.getUpdatedAt())
+                .build();
+
     }
 }
