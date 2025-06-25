@@ -54,6 +54,9 @@ dependencies {
 //
 	// Mysql
 	implementation 'com.mysql:mysql-connector-j'
+
+	// Elasticsearch
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 }
 
 tasks.named('test') {
