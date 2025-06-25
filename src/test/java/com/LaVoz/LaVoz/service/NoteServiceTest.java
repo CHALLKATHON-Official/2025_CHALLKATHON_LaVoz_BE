@@ -8,6 +8,7 @@ import com.LaVoz.LaVoz.repository.MemberOrganizationRepository;
 import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.repository.NoteRepository;
 import com.LaVoz.LaVoz.repository.OrganizationRepository;
+import com.LaVoz.LaVoz.search.service.NoteSearchService;
 import com.LaVoz.LaVoz.web.dto.request.NoteCreateRequest;
 import com.LaVoz.LaVoz.web.dto.response.NoteResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,9 @@ public class NoteServiceTest {
 
     @Mock
     private MemberOrganizationRepository memberOrganizationRepository;
+
+    @Mock
+    private NoteSearchService noteSearchService;
 
     @InjectMocks
     private NoteService noteService;
