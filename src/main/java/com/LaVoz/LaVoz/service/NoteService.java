@@ -7,6 +7,7 @@ import com.LaVoz.LaVoz.repository.MemberOrganizationRepository;
 import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.repository.NoteRepository;
 import com.LaVoz.LaVoz.repository.OrganizationRepository;
+import com.LaVoz.LaVoz.search.service.NoteSearchService;
 import com.LaVoz.LaVoz.web.dto.request.NoteCreateRequest;
 import com.LaVoz.LaVoz.web.dto.response.NoteResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,8 @@ public class NoteService {
     private final OrganizationRepository organizationRepository;
     private final MemberRepository memberRepository;
     private final MemberOrganizationRepository memberOrganizationRepository;
-    
+    private final NoteSearchService noteSearchService;
+
     /**
      * 조직에 새로운 노트 생성
      */
@@ -60,7 +62,11 @@ public class NoteService {
                 .build();
         
         Note savedNote = noteRepository.save(note);
-        
+
+        // Elasticsearch에 노트 인덱싱
+        noteSearchService.indexNote(savedNote);
+
+
         return NoteResponse.from(savedNote);
     }
     
@@ -169,6 +175,48 @@ public class NoteService {
         }
         
         noteRepository.delete(note);
+        // Elasticsearch에서 노트 인덱스 삭제
+        noteSearchService.deleteNoteIndex(noteId);
+
         return true;
     }
+
+    /**
+     * 조직 내에서 키워드로 노트 검색
+     */
+    public List<NoteResponse> searchNotesByOrganization(String keyword, Long organizationId, Long memberId) {
+        // 조직 조회
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new IllegalArgumentException("Organization not found with id: " + organizationId));
+
+        // 멤버가 해당 조직에 속하는지 확인
+        boolean isMemberInOrganization = memberOrganizationRepository
+                .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
+
+        if (!isMemberInOrganization) {
+            throw new IllegalArgumentException("Member with id " + memberId +
+                    " does not belong to Organization with id " + organizationId);
+        }
+
+        return noteSearchService.searchNotesByKeywordInOrganization(keyword, organizationId);
+    }
+
+    /**
+     * 유사도 기반 노트 검색
+     */
+    public List<NoteResponse> searchNotesBySimilarity(String keyword, Long organizationId, Long memberId) {
+        // 조직이 지정된 경우 권한 체크
+        if (organizationId != null) {
+            boolean isMemberInOrganization = memberOrganizationRepository
+                    .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
+
+            if (!isMemberInOrganization) {
+                throw new IllegalArgumentException("Member with id " + memberId +
+                        " does not belong to Organization with id " + organizationId);
+            }
+        }
+
+        return noteSearchService.searchNotesBySimilarity(keyword, organizationId);
+    }
+
 }
