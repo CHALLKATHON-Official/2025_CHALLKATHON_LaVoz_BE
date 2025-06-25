@@ -17,31 +17,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OrganizationService {
-    
+
     private final MemberOrganizationRepository memberOrganizationRepository;
     private final OrganizationRepository organizationRepository;
     private final MemberRepository memberRepository;
     private final IssueRepository issueRepository;
-    
+
     /**
      * 특정 멤버가 속한 모든 Organization 목록을 DTO로 변환하여 반환
      */
     public List<OrganizationResponse> findOrganizationsByMemberId(Long memberId) {
-        List<MemberOrganization> memberOrganizations = 
+        List<MemberOrganization> memberOrganizations =
             memberOrganizationRepository.findByMember_MemberId(memberId);
-            
+
         return memberOrganizations.stream()
             .map(MemberOrganization::getOrganization)
             .map(OrganizationResponse::from)
             .collect(Collectors.toList());
     }
-    
+
     /**
      * 새로운 Organization을 생성하고 생성한 멤버를 자동으로 추가
      */
@@ -50,24 +51,29 @@ public class OrganizationService {
         // 멤버 조회
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
-        
+
+        // 랜덤 인증 코드 생성
+        String inviteCode = generateUniqueInviteCode();
+
         // Organization 생성 및 저장
         Organization organization = Organization.builder()
-            .name(name)
-            .build();
+                .name(name)
+                .inviteCode(inviteCode)
+                .build();
         Organization savedOrganization = organizationRepository.save(organization);
-        
+
         // MemberOrganization 생성 및 저장 (멤버와 Organization 연결)
         MemberOrganization memberOrganization = MemberOrganization.builder()
             .member(member)
             .organization(savedOrganization)
             .build();
         memberOrganizationRepository.save(memberOrganization);
-        
+
         return OrganizationResponse.builder()
-            .organizationId(savedOrganization.getOrganizationId())
-            .name(savedOrganization.getName())
-            .build();
+                .organizationId(savedOrganization.getOrganizationId())
+                .name(savedOrganization.getName())
+                .inviteCode(savedOrganization.getInviteCode())
+                .build();
     }
 
 /**
@@ -81,14 +87,14 @@ public boolean deleteOrganization(Long organizationId, Long memberId) {
 
     boolean isMemberInOrganization = memberOrganizationRepository
             .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
-    
+
     if (!isMemberInOrganization) {
-        throw new IllegalArgumentException("Member with id " + memberId + 
+        throw new IllegalArgumentException("Member with id " + memberId +
                 " does not belong to Organization with id " + organizationId);
     }
 
     organizationRepository.delete(organization);
-    
+
     return true;
 }
 
@@ -100,37 +106,37 @@ public boolean addMemberToOrganization(Long organizationId, Long memberId, Long 
     // 조직 존재 여부 확인
     Organization organization = organizationRepository.findById(organizationId)
             .orElseThrow(() -> new IllegalArgumentException("Organization not found with id: " + organizationId));
-    
+
     // 요청자가 해당 조직에 속하는지 확인 (권한 검증)
     boolean isRequesterInOrganization = memberOrganizationRepository
             .existsByMember_MemberIdAndOrganization_OrganizationId(requesterId, organizationId);
-    
+
     if (!isRequesterInOrganization) {
-        throw new IllegalArgumentException("Requester with id " + requesterId + 
+        throw new IllegalArgumentException("Requester with id " + requesterId +
                 " does not belong to Organization with id " + organizationId);
     }
-    
+
     // 추가할 멤버 존재 여부 확인
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
-    
+
     // 이미 조직에 속한 멤버인지 확인
     boolean isMemberAlreadyInOrganization = memberOrganizationRepository
             .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organizationId);
-    
+
     if (isMemberAlreadyInOrganization) {
-        throw new IllegalArgumentException("Member with id " + memberId + 
+        throw new IllegalArgumentException("Member with id " + memberId +
                 " already belongs to Organization with id " + organizationId);
     }
-    
+
     // MemberOrganization 생성 및 저장 (멤버와 Organization 연결)
     MemberOrganization memberOrganization = MemberOrganization.builder()
             .member(member)
             .organization(organization)
             .build();
-    
+
     memberOrganizationRepository.save(memberOrganization);
-    
+
     return true;
 }
 
@@ -164,4 +170,56 @@ public boolean addMemberToOrganization(Long organizationId, Long memberId, Long 
                         .build())
                 .toList();
     }
+    /**
+     * 인증 코드를 사용하여 Organization에 가입
+     */
+    @Transactional
+    public OrganizationResponse joinOrganizationByInviteCode(String inviteCode, Long memberId) {
+        // 인증 코드로 Organization 찾기
+        Organization organization = organizationRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid invite code: " + inviteCode));
+
+        // 멤버 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
+
+        // 이미 조직에 속한 멤버인지 확인
+        boolean isMemberAlreadyInOrganization = memberOrganizationRepository
+                .existsByMember_MemberIdAndOrganization_OrganizationId(memberId, organization.getOrganizationId());
+
+        if (isMemberAlreadyInOrganization) {
+            throw new IllegalArgumentException("Member with id " + memberId +
+                    " already belongs to Organization with id " + organization.getOrganizationId());
+        }
+
+        // MemberOrganization 생성 및 저장 (멤버와 Organization 연결)
+        MemberOrganization memberOrganization = MemberOrganization.builder()
+                .member(member)
+                .organization(organization)
+                .build();
+
+        memberOrganizationRepository.save(memberOrganization);
+
+        return OrganizationResponse.builder()
+                .organizationId(organization.getOrganizationId())
+                .name(organization.getName())
+                .inviteCode(organization.getInviteCode())
+                .build();
+    }
+
+    /**
+     * 랜덤 5자리 인증 코드 생성
+     */
+    private String generateUniqueInviteCode() {
+        Random random = new Random();
+        String inviteCode;
+        do {
+            // 5자리 숫자 생성 (10000-99999)
+            inviteCode = String.format("%05d", random.nextInt(90000) + 10000);
+        } while (organizationRepository.existsByInviteCode(inviteCode));
+
+        return inviteCode;
+    }
+
+
 }
