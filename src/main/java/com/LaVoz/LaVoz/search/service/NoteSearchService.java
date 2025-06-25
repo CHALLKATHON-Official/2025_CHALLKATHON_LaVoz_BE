@@ -6,8 +6,10 @@ import com.LaVoz.LaVoz.repository.NoteRepository;
 import com.LaVoz.LaVoz.search.document.NoteDocument;
 import com.LaVoz.LaVoz.search.repository.NoteSearchRepository;
 import com.LaVoz.LaVoz.web.dto.response.NoteResponse;
-import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -29,7 +31,8 @@ public class NoteSearchService {
     /**
      * 애플리케이션 시작 시 모든 노트를 Elasticsearch에 인덱싱
      */
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
+    @Transactional
     public void indexAllNotes() {
         List<Note> allNotes = noteRepository.findAll();
         List<NoteDocument> noteDocuments = allNotes.stream()
@@ -113,7 +116,7 @@ public class NoteSearchService {
                         .field("content")
                         .query(keyword)
                         .fuzziness("AUTO")
-                        .prefixLength(3)
+                        .prefixLength(1)
                 )
         );
 

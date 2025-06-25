@@ -6,11 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -45,9 +46,9 @@ public class NoteDocument {
     
     @Field(type = FieldType.Keyword)
     private String organizationName;
-    
-    @Field(type = FieldType.Date)
-    private LocalDateTime createdAt;
+
+    @Field(type = FieldType.Date, format = DateFormat.date)
+    private LocalDate createdAt;
     
     // Note 엔티티를 NoteDocument로 변환하는 메서드
     public static NoteDocument from(Note note) {
@@ -61,7 +62,7 @@ public class NoteDocument {
                 .memberName(note.getMember().getName())
                 .organizationId(note.getOrganization() != null ? note.getOrganization().getOrganizationId() : null)
                 .organizationName(note.getOrganization() != null ? note.getOrganization().getName() : null)
-                .createdAt(note.getCreatedAt())
+                .createdAt(note.getCreatedAt().toLocalDate())
                 .build();
     }
 }
