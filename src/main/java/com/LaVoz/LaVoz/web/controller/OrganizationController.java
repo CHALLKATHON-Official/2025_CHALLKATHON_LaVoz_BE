@@ -12,6 +12,7 @@ import com.LaVoz.LaVoz.web.dto.request.OrganizationCreateRequest;
 import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
 import com.LaVoz.LaVoz.web.dto.response.IssueResponse;
 import com.LaVoz.LaVoz.web.dto.response.OrganizationResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -107,6 +108,14 @@ public class OrganizationController {
         );
     }
 
+    @Operation(summary = "상태 분석",
+            description = """
+                    행동 노트 기반 gpt 분석
+                    분석 항목:
+                    1. 시간별 감정과 주된 행동
+                    2. 감정별 반복 행동
+                    3. 감각 자극에 대한 민감 반응 횟수 누적
+                    """)
     @PostMapping("/{organization_id}/state-analysis")
     public ApiResponse<ChildStatusResponse> stateAnalysis(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,

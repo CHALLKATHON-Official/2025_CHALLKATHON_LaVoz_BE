@@ -2,6 +2,8 @@ package com.LaVoz.LaVoz.web.controller;
 
 import com.LaVoz.LaVoz.common.Constant;
 import com.LaVoz.LaVoz.common.exception.ResourceNotFoundException;
+import com.LaVoz.LaVoz.common.security.CustomUserDetails;
+import com.LaVoz.LaVoz.domain.Member;
 import com.LaVoz.LaVoz.service.MemberService;
 import com.LaVoz.LaVoz.service.TokenService;
 import com.LaVoz.LaVoz.web.apiResponse.ApiResponse;
@@ -9,13 +11,17 @@ import com.LaVoz.LaVoz.web.apiResponse.error.ErrorStatus;
 import com.LaVoz.LaVoz.web.apiResponse.success.SuccessStatus;
 import com.LaVoz.LaVoz.web.dto.request.LoginRequest;
 import com.LaVoz.LaVoz.web.dto.request.MemberRegisterRequest;
+import com.LaVoz.LaVoz.web.dto.request.MemberUpdateRequest;
 import com.LaVoz.LaVoz.web.dto.response.MemberInfoResponse;
+import com.LaVoz.LaVoz.web.dto.response.MyPageResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -82,6 +88,33 @@ public class MemberController {
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         return ApiResponse.onSuccess(SuccessStatus.REISSUE_TOKEN_SUCCESS, reissueResponse);
+    }
+
+    /**
+     * 현재 로그인한 사용자 정보 조회
+     */
+    @GetMapping("/me")
+    public ApiResponse<MyPageResponse> getCurrentMemberInfo(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        Member member = customUserDetails.getMember();
+        MyPageResponse response = memberService.getMemberInfo(member);
+
+        return ApiResponse.onSuccess(SuccessStatus.GET_MEMBER_INFO_SUCCESS, response);
+    }
+
+    /**
+     * 현재 로그인한 사용자 정보 수정
+     */
+    @PutMapping("/me")
+    public ApiResponse<MyPageResponse> updateCurrentMemberInfo(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Valid @RequestBody MemberUpdateRequest request) throws IOException {
+
+        Member member = customUserDetails.getMember();
+        MyPageResponse response = memberService.updateMemberInfo(member.getMemberId(), request);
+
+        return ApiResponse.onSuccess(SuccessStatus.UPDATE_MEMBER_INFO_SUCCESS, response);
     }
 
     @GetMapping("/test")

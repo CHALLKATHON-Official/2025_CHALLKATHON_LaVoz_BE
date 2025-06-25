@@ -6,7 +6,9 @@ import com.LaVoz.LaVoz.repository.MemberRepository;
 import com.LaVoz.LaVoz.web.apiResponse.error.ErrorStatus;
 import com.LaVoz.LaVoz.web.dto.request.LoginRequest;
 import com.LaVoz.LaVoz.web.dto.request.MemberRegisterRequest;
+import com.LaVoz.LaVoz.web.dto.request.MemberUpdateRequest;
 import com.LaVoz.LaVoz.web.dto.response.MemberInfoResponse;
+import com.LaVoz.LaVoz.web.dto.response.MyPageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,5 +79,24 @@ public class MemberService {
     @Transactional(readOnly = true)
     public boolean isLoginIdAvailable(String loginId) {
         return !memberRepository.existsByLoginId(loginId);
+    }
+
+    /**
+     * 로그인 회원 정보 조회
+     */
+    @Transactional(readOnly = true)
+    public MyPageResponse getMemberInfo(Member member) {
+
+        return MyPageResponse.from(member);
+    }
+
+    /**
+     * 로그인 회원 정보 수정
+     */
+    public MyPageResponse updateMemberInfo(Long memberId, MemberUpdateRequest request) throws IOException {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorStatus.USER_NOT_FOUND));
+        member.updateMember(request);
+        return MyPageResponse.from(member);
     }
 }

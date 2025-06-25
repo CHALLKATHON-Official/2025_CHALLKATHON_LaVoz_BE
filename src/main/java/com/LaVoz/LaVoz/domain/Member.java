@@ -1,6 +1,7 @@
 package com.LaVoz.LaVoz.domain;
 
 import com.LaVoz.LaVoz.domain.enums.Role;
+import com.LaVoz.LaVoz.web.dto.request.MemberUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +40,14 @@ public class Member extends BaseTimeEntity {
     private String loginId;
     private String email;
 
+    private String childName;
+
+    private String childGender;
+
+    private String childBirthday;
+
+    private String childImageUrl;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Note> notes = new ArrayList<>();
 
@@ -59,5 +68,14 @@ public class Member extends BaseTimeEntity {
 
     public void setEncodedPassword(String password) {
         this.password = password;
+    }
+
+    public void updateMember(MemberUpdateRequest request) {
+        this.name = request.getName();
+        this.imageUrl = request.getImageUrl();
+        this.childName = request.getChildName();
+        this.childGender = request.getChildGender();
+        this.childBirthday = request.getChildBirthday();
+        this.childImageUrl = request.getChildImageUrl();
     }
 }
