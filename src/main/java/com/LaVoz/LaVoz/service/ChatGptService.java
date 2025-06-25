@@ -7,11 +7,13 @@ import com.LaVoz.LaVoz.common.openai.dto.Message;
 import com.LaVoz.LaVoz.common.openai.templates.PromptManager;
 import com.LaVoz.LaVoz.domain.*;
 import com.LaVoz.LaVoz.repository.*;
+import com.LaVoz.LaVoz.search.service.NoteSearchService;
 import com.LaVoz.LaVoz.web.apiResponse.error.ErrorStatus;
 import com.LaVoz.LaVoz.web.dto.request.IssueRequest;
 import com.LaVoz.LaVoz.web.dto.response.ChatGptStatusDto;
 import com.LaVoz.LaVoz.web.dto.response.ChildStatusResponse;
 import com.LaVoz.LaVoz.web.dto.response.IssueResponse;
+import com.LaVoz.LaVoz.web.dto.response.NoteResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class ChatGptService {
     private final OrganizationRepository organizationRepository;
     private final MemberOrganizationRepository memberOrganizationRepository;
     private final IssueRepository issueRepository;
+    private final NoteSearchService noteSearchService;
 
     @Value("${openai.model}")
     private String model;
@@ -72,9 +75,12 @@ public class ChatGptService {
             log.debug("기존 상태 데이터 조회 완료 - statusId: {}", currentStatus.getStatusId());
         }
 
+        // 유사한 행동 노트 조회
+        List<NoteResponse>similarNotes = noteSearchService.searchNotesBySimilarity(question, organizationId);
+
         // ChatGPT API 호출
-        String prompt = promptManager.createIssuePrompt(question,currentStatus);
-        log.debug("생성된 프롬프트: \n{}", prompt);
+        String prompt = promptManager.createIssuePrompt(question, currentStatus, similarNotes);
+        log.info("생성된 프롬프트: \n{}", prompt);
         String responseContent = callChatGptApi(prompt);
 
         Issue issue = Issue.builder()
