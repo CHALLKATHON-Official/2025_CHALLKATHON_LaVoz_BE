@@ -63,8 +63,6 @@
 
 ## 시스템 아키텍처
 ![image](https://github.com/user-attachments/assets/5a1e20bc-a7e2-4516-8dfe-25e650a6da92)
-![image](https://github.com/user-attachments/assets/5a1e20bc-a7e2-4516-8dfe-25e650a6da92)
-
 
 ## 파일 구조
 
