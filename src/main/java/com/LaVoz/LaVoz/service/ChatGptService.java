@@ -129,7 +129,7 @@ public class ChatGptService {
         }
 
         List<Note> newNotes = getNewNotes(organization, currentStatus);
-        log.info("분석 대상 노트 개수: {}, 노트 id: {}", newNotes.size(), newNotes.get(0).getNoteId());
+        log.info("분석 대상 노트 개수: {}, 노트 id: {}", newNotes.size());
 
         // 기존 상태가 있고 새로운 노트가 없는 경우 -> 기존 상태 반환 (GPT 호출 X)
         if (currentStatus != null && newNotes.isEmpty()) {
