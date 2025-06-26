@@ -70,7 +70,7 @@ public class BoardService {
         }
 
 
-        return BoardResponse.from(board);
+        return BoardResponse.from(board, isBookmarked);
     }
 
     /**
